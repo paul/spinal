@@ -4,13 +4,23 @@ require './lib/spinal'
 class TestApp
   include Spinal::App
 
-  class Post
+  class PostsController
     include Spinal::Resource
 
-    resource '/'
+    resource '/posts'
 
     def get
-      "Hello"
+      "Hello from posts"
+    end
+
+    class PostController
+      include Spinal::Resource
+
+      resource '/posts/:id'
+
+      def get(id = 1)
+        "Hello from post ##{id}"
+      end
     end
   end
 

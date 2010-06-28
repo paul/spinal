@@ -20,13 +20,16 @@ module Spinal::App
 
   def resource_map
     resource_map = {}
-    self.class.constants.each do |const|
-      const = self.class.const_get(const)
-      if const.ancestors.include?(Spinal::Resource)
-        resource_map[const.resource] = const.new(self)
-      end
-    end
+    resources.each { |r| resource_map[r.resource] = r.new(self) }
     resource_map
+  end
+
+  def resources
+    self.class.constants.map { |c|
+      const = self.class.const_get(c)
+      const.ancestors.include?(Spinal::Resource)
+      [const, const.sub_resources]
+    }.flatten.uniq
   end
 
 end

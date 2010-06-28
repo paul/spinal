@@ -4,14 +4,10 @@ require 'active_support/concern'
 module Spinal::Resource
   extend ActiveSupport::Concern
 
-  attr_reader :app
+  attr_reader :app, :resource
 
   def initialize(app)
     @app = app
-
-    unless defined?(@@resource)
-      @@resource = nil
-    end
   end
 
   def call(env)
@@ -27,10 +23,21 @@ module Spinal::Resource
 
     def resource(path = nil)
       if path
-        @@resource = path
+        @resource = path
       else
-        @@resource
+        @resource
       end
+    end
+
+    def sub_resources
+      self.constants.map { |c|
+        const = self.const_get(c)
+        if const.ancestors.include?(Spinal::Resource)
+          [const, const.sub_resources]
+        else
+          nil
+        end
+      }.compact.flatten.uniq
     end
 
   end
