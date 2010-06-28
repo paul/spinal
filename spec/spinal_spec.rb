@@ -1,7 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Spinal" do
-  it "fails" do
-    fail "hey buddy, you should probably rename this file and start specing for real"
+
+  it 'should work' do
+    get '/posts'
+    response.should be_ok
   end
 end

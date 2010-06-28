@@ -12,4 +12,5 @@ end
 
 group :test do
   gem 'rspec', '>=2.0.0.beta.13'
+  gem 'rack-test'
 end
