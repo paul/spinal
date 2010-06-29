@@ -3,8 +3,10 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'spinal'
 
 require 'rspec/core'
-
 require 'rack/test'
+
+require 'pp'
+
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
