@@ -4,6 +4,8 @@ require 'active_support/concern'
 module Spinal::Resource
   extend ActiveSupport::Concern
 
+  attr_reader :request, :response
+
   class RequestError < Exception; end
 
   class MethodNotAllowed < RequestError; end
@@ -15,19 +17,16 @@ module Spinal::Resource
   end
 
   def call(env)
+    @request = Rack::Request.new(env)
+    @response = Rack::Response.new
+
     begin
-      response_body = send(env['REQUEST_METHOD'].downcase)
-      [
-        200,
-        {'Content-Type' => 'text/plain'},
-        [response_body]
-      ]
+      response.write send(request.request_method.downcase)
+      response.finish
     rescue RequestError => error
-      [
-        405,
-        {'Content-Type' => 'text/plain'},
-        ["Method Not Allowed"]
-      ]
+      response.status = 405
+      response.write    "Method not allowed"
+      response.finish
     end
   end
 
