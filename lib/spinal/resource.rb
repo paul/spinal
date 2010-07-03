@@ -30,6 +30,10 @@ module Spinal::Resource
     end
   end
 
+	def render(format, &block)
+		instance_eval(&block)
+	end
+
   def get(*args)
     raise MethodNotAllowed
   end
