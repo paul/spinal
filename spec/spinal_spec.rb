@@ -12,4 +12,5 @@ describe "Spinal" do
     response.should be_client_error
     response.status.should == 405
   end
+
 end

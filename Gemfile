@@ -4,6 +4,7 @@ source :gemcutter
 gem 'activesupport', '>=3.0.0.beta4'
 
 gem 'rack'
+gem 'http_router'
 
 group :dev do
   gem 'jeweler'

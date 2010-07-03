@@ -1,35 +1,39 @@
 
 require 'active_support/concern'
-require 'pp'
+require 'http_router'
 
 # This is Spinal::App
 module Spinal::App
   extend ActiveSupport::Concern
 
-  attr_reader :url_map
-
   def initialize
-    @url_map = Spinal::UrlMap.new(resource_map)
   end
 
   def call(env = {})
-    @url_map.match_and_run(env)
+    router.call(env)
+    resource = env['router.response'].route.dest
+    request = Rack::Request.new(env)
+    resource.new(request).call
   end
 
-  protected
-
-  def resource_map
-    resource_map = {}
-    resources.each { |r| resource_map[r.resource] = r.new(self) }
-    resource_map
+  def url(*args)
+    router.url(*args)
   end
 
-  def resources
-    self.class.constants.map { |c|
-      const = self.class.const_get(c)
-      const.is_a?(Class) && const.ancestors.include?(Spinal::Resource)
-      [const, const.sub_resources]
-    }.flatten.uniq
+  def router
+    self.class.router
+  end
+
+  module ClassMethods
+
+    def router
+      @router ||= HttpRouter.new(:middleware => true)
+    end
+
+    def mount(*args)
+      router.add(*args)
+    end
+
   end
 
 end

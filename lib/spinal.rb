@@ -7,6 +7,5 @@ module Spinal
 end
 
 require 'spinal/resource'
-require 'spinal/url_map'
 require 'spinal/app'
 

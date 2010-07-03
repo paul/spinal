@@ -18,13 +18,14 @@ module Rspec
         class Posts
           include Spinal::Resource
 
-          resource '/posts'
-
           def get
             "Hello, from /posts"
           end
 
         end
+
+        mount('/posts').name(:posts).to(Posts)
+
       end
 
     end

@@ -12,14 +12,12 @@ module Spinal::Resource
 
   attr_reader :app, :resource
 
-  def initialize(app)
-    @app = app
+  def initialize(request)
+    @request = request
+    @response = Rack::Response.new
   end
 
-  def call(env)
-    @request = Rack::Request.new(env)
-    @response = Rack::Response.new
-
+  def call
     begin
       response.write send(request.request_method.downcase)
       response.finish
