@@ -30,9 +30,26 @@ module Spinal::Resource
     end
   end
 
-	def render(format, &block)
-		instance_eval(&block)
-	end
+  def negotiate(&block)
+    yield
+  end
+
+  def format(format, &block)
+    @_current_format = format
+    instance_eval(&block)
+  end
+
+  TEMPLATE_PATH = "./app/views"
+  def template(template_name)
+    file_prefix = "#{TEMPLATE_PATH}/#{template_name}.#{@_current_format}"
+
+    Tilt.mappings.keys.each do |ext|
+      possible_file = "#{file_prefix}.#{ext}"
+      if File.exists?(possible_file)
+        return Tilt.new(possible_file)
+      end
+    end
+  end
 
   def get(*args)
     raise MethodNotAllowed
@@ -63,7 +80,7 @@ module Spinal::Resource
     def sub_resources
       self.constants.map { |c|
         const = self.const_get(c)
-        if const.ancestors.include?(Spinal::Resource)
+        if const.is_a?(Class) && const.ancestors.include?(Spinal::Resource)
           [const, const.sub_resources]
         else
           nil

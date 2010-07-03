@@ -27,7 +27,7 @@ module Spinal::App
   def resources
     self.class.constants.map { |c|
       const = self.class.const_get(c)
-      const.ancestors.include?(Spinal::Resource)
+      const.is_a?(Class) && const.ancestors.include?(Spinal::Resource)
       [const, const.sub_resources]
     }.flatten.uniq
   end
