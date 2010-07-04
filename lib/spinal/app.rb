@@ -12,8 +12,7 @@ module Spinal::App
   def call(env = {})
     router.call(env)
     resource = env['router.response'].route.dest
-    request = Rack::Request.new(env)
-    resource.new(request).call
+    resource.new(self).call(env)
   end
 
   def url(*args)

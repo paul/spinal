@@ -5,19 +5,21 @@ module Spinal::Resource
   extend ActiveSupport::Concern
 
   attr_reader :request, :response
+  attr_reader :app, :resource
+
 
   class RequestError < Exception; end
 
   class MethodNotAllowed < RequestError; end
 
-  attr_reader :app, :resource
-
-  def initialize(request)
-    @request = request
-    @response = Rack::Response.new
+  def initialize(app)
+    @app = app
   end
 
-  def call
+  def call(env)
+    @request = Rack::Request.new(env)
+    @response = Rack::Response.new
+
     begin
       response.write send(request.request_method.downcase)
       response.finish
