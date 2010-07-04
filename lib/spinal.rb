@@ -1,11 +1,12 @@
 
-$:.unshift(File.expand_path(File.dirname(__FILE__))) unless
-    $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
-
 module Spinal
 
+  def self.require_relative(path)
+    @_lib_dir ||= File.dirname(__FILE__)
+    require File.expand_path(File.join(@lib_dir, path))
+  end
 end
 
-require 'spinal/resource'
-require 'spinal/app'
+Spinal.require_relative 'spinal/resource'
+Spinal.require_relative 'spinal/app'
 

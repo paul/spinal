@@ -12,7 +12,7 @@ module Spinal::App
   def call(env = {})
     router.call(env)
     resource = env['router.response'].route.dest
-    resource.new(self).call(env)
+    resource.do_get(self, env)
   end
 
   def url(*args)
@@ -29,9 +29,11 @@ module Spinal::App
       @router ||= HttpRouter.new(:middleware => true)
     end
 
-    def mount(*args)
-      router.add(*args)
+    def mount(name, path, resource)
+      route = router.add(path).name(name).to(resource)
+      resource.route = route
     end
+
 
   end
 

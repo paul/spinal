@@ -5,29 +5,29 @@ module Spinal::Resource
   extend ActiveSupport::Concern
 
   attr_reader :request, :response
-  attr_reader :app, :resource
+  attr_reader :app
 
 
   class RequestError < Exception; end
 
   class MethodNotAllowed < RequestError; end
 
-  def initialize(app)
+  def initialize(app, env)
     @app = app
+    @request = env.is_a?(Rack::Request) ? env : Rack::Request.new(env)
+    @response = Rack::Response.new
   end
 
-  def call(env)
-    @request = Rack::Request.new(env)
-    @response = Rack::Response.new
-
-    begin
-      response.write send(request.request_method.downcase)
-      response.finish
-    rescue RequestError => error
-      response.status = 405
-      response.write    "Method not allowed"
-      response.finish
+  def path(*args)
+    if args.empty?
+      app.url(self.class.route)
+    else
+      app.url(*args)
     end
+  end
+
+  def url(*args)
+    "#{request.scheme}://#{request.host}#{path(*args)}"
   end
 
   def negotiate(&block)
@@ -67,25 +67,18 @@ module Spinal::Resource
     raise MethodNotAllowed
   end
 
+  def type
+    self.class.to_s
+  end
+
   module ClassMethods
 
-    def resource(path = nil)
-      if path
-        @resource = path
-      else
-        @resource
-      end
-    end
+    attr_accessor :route
 
-    def sub_resources
-      self.constants.map { |c|
-        const = self.const_get(c)
-        if const.is_a?(Class) && const.ancestors.include?(Spinal::Resource)
-          [const, const.sub_resources]
-        else
-          nil
-        end
-      }.compact.flatten.uniq
+    def do_get(app, env)
+      resource = new(app, env)
+      resource.response.write resource.get
+      resource.response.finish
     end
 
   end
